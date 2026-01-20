@@ -1,5 +1,5 @@
 import audioAnalysisService from '../services/audioAnalysis.js';
-import aiService from '../services/aiService.js';
+import aiService from '../services/aiServiceHybrid.js';
 import fs from 'fs/promises';
 
 /**

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEUTSCHRAP PRODUCER GUIDE 2025</title>
+    
+    <!-- Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <style>
+        body { background-color: #050505; color: #e0e0e0; font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
+        
+        /* Neon Glows */
+        .glow-text { text-shadow: 0 0 10px rgba(0, 242, 255, 0.5); }
+        .glow-box { box-shadow: 0 0 15px rgba(0, 242, 255, 0.1); }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #111; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #00f2ff; }
+
+        /* Animations */
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: 0; } }
+
+        /* Knob Styles */
+        .knob-wrapper { position: relative; width: 60px; height: 60px; }
+        .knob-circle {
+            width: 100%; height: 100%; border-radius: 50%;
+            background: conic-gradient(#00f2ff var(--deg), #222 0);
+            box-shadow: inset 0 0 10px #000; position: relative;
+            transform: rotate(-180deg); /* Start at bottom */
+        }
+        .knob-inner {
+            position: absolute; top: 10%; left: 10%; width: 80%; height: 80%;
+            background: #111; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 10px; font-weight: bold; color: #00f2ff;
+        }
+
+        /* Markdown Styles */
+        .prose p { margin-bottom: 0.5em; }
+        .prose strong { color: #00f2ff; }
+        .prose ul { list-style: disc; padding-left: 1.2em; color: #aaa; }
+    </style>
+</head>
+<body>
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // --- ICONS ---
+        const Icon = ({ name, size=20 }) => {
+            if(name==='mic') return <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>;
+            if(name==='sliders') return <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>;
+            if(name==='bot') return <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/></svg>;
+            if(name==='zap') return <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>;
+            return null;
+        };
+
+        // --- API CONFIG ---
+        // ⬇️⬇️⬇️ HIER API KEY EINFÜGEN ⬇️⬇️⬇️
+        const apiKey = ""; 
+        // ⬆️⬆️⬆️ --------------------------- ⬆️⬆️⬆️
+
+        async function callGemini(prompt, systemContext) {
+            if (!apiKey) return "⚠️ <strong>DEMO MODE:</strong> Bitte API Key im Code eintragen.";
+            
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const payload = { contents: [{ parts: [{ text: `SYSTEM: ${systemContext}\nUSER: ${prompt}` }] }] };
+
+            try {
+                const res = await fetch(url, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
+                const data = await res.json();
+                return marked.parse(data.candidates?.[0]?.content?.parts?.[0]?.text || "Fehler");
+            } catch (e) { return "API Fehler: " + e.message; }
+        }
+
+        // --- COMPONENTS ---
+
+        const Knob = ({ label, val, setVal }) => {
+            // Einfache Simulation: Klick erhöht Wert
+            const handleClick = () => setVal(prev => (prev + 10) > 100 ? 0 : prev + 10);
+            return (
+                <div className="flex flex-col items-center gap-2 cursor-pointer" onClick={handleClick}>
+                    <div className="knob-wrapper">
+                        <div className="knob-circle" style={{'--deg': `${val * 3.6}deg`}}></div>
+                        <div className="knob-inner">{val}%</div>
+                    </div>
+                    <span className="text-[10px] uppercase text-gray-500 font-bold">{label}</span>
+                </div>
+            );
+        };
+
+        const VSTRack = ({ title, type, style, onAnalyze }) => {
+            const [knobs, setKnobs] = useState({ k1: 50, k2: 50, k3: 50, k4: 50 });
+            const [aiAdvice, setAiAdvice] = useState(null);
+            const [loading, setLoading] = useState(false);
+
+            const handleAnalyze = async () => {
+                setLoading(true);
+                const prompt = `Ich produziere einen ${style} Deutschrap Song. Gib mir die perfekten Einstellungen für das Plugin '${title}'. Format: Kurz und knapp, 3 Bulletpoints mit konkreten Werten (Hz, dB, ms).`;
+                const advice = await callGemini(prompt, "Du bist ein Senior Audio Engineer für Deutschrap.");
+                setAiAdvice(advice);
+                setLoading(false);
+                
+                // Simuliere "Auto-Setting" der Knobs
+                setKnobs({ k1: Math.random()*100, k2: Math.random()*100, k3: Math.random()*100, k4: Math.random()*100 });
+            };
+
+            return (
+                <div className="bg-[#111] border border-[#333] rounded-lg p-4 mb-4 glow-box">
+                    <div className="flex justify-between items-center mb-4 border-b border-[#333] pb-2">
+                        <h3 className="font-bold text-[#00f2ff] tracking-widest">{title}</h3>
+                        <button onClick={handleAnalyze} className="text-xs bg-[#00f2ff] text-black px-3 py-1 rounded font-bold hover:bg-white transition flex items-center gap-1">
+                            {loading ? "..." : <><Icon name="zap" size={12}/> KI-SETTING</>}
+                        </button>
+                    </div>
+                    
+                    <div className="flex justify-around mb-4">
+                        <Knob label="Threshold/Low" val={Math.round(knobs.k1)} setVal={(v)=>setKnobs({...knobs, k1:v})} />
+                        <Knob label="Ratio/Mid" val={Math.round(knobs.k2)} setVal={(v)=>setKnobs({...knobs, k2:v})} />
+                        <Knob label="Attack/High" val={Math.round(knobs.k3)} setVal={(v)=>setKnobs({...knobs, k3:v})} />
+                        <Knob label="Gain/Air" val={Math.round(knobs.k4)} setVal={(v)=>setKnobs({...knobs, k4:v})} />
+                    </div>
+
+                    {aiAdvice && (
+                        <div className="bg-slate-900 p-3 rounded border border-slate-700 text-xs text-gray-300 prose prose-invert" dangerouslySetInnerHTML={{__html: aiAdvice}}></div>
+                    )}
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [step, setStep] = useState(1);
+            const [style, setStyle] = useState("");
+            const [tracks, setTracks] = useState({ main: true, doubles: false, adlibs: false });
+            const [fx, setFx] = useState({ autotune: false, delay: false, phone: false });
+            
+            // Chat State
+            const [chatOpen, setChatOpen] = useState(false);
+            const [messages, setMessages] = useState([{role: 'ai', text: 'Yo! Ich bin dein Studio-Assistent. Wo hängst du gerade? Mix? Beat?'}]);
+            const [chatInput, setChatInput] = useState("");
+
+            const handleChat = async (e) => {
+                e.preventDefault();
+                if(!chatInput) return;
+                const newMsgs = [...messages, {role: 'user', text: chatInput}];
+                setMessages(newMsgs);
+                setChatInput("");
+                
+                const response = await callGemini(chatInput, "Du bist ein cooler, hilfreicher Deutschrap-Produzenten-Mentor. Antworte kurz.");
+                setMessages([...newMsgs, {role: 'ai', text: response}]);
+            };
+
+            return (
+                <div className="min-h-screen flex flex-col md:flex-row">
+                    
+                    {/* SIDEBAR */}
+                    <div className="w-full md:w-64 bg-[#0a0a0a] border-r border-[#222] p-6 flex flex-col">
+                        <h1 className="text-2xl font-black text-white italic mb-8">RAP<span className="text-[#00f2ff]">GUIDE</span>25</h1>
+                        <nav className="space-y-4">
+                            <div className={`p-3 rounded cursor-pointer ${step===1 ? 'bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]' : 'text-gray-500'}`} onClick={()=>setStep(1)}>1. VIBE & STYLE</div>
+                            <div className={`p-3 rounded cursor-pointer ${step===2 ? 'bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]' : 'text-gray-500'}`} onClick={()=>style && setStep(2)}>2. SETUP</div>
+                            <div className={`p-3 rounded cursor-pointer ${step===3 ? 'bg-[#00f2ff]/10 text-[#00f2ff] border border-[#00f2ff]' : 'text-gray-500'}`} onClick={()=>style && setStep(3)}>3. MIXING SUITE</div>
+                        </nav>
+                        
+                        <div className="mt-auto pt-6 border-t border-[#222]">
+                            <button onClick={()=>setChatOpen(!chatOpen)} className="w-full bg-[#222] hover:bg-[#333] text-white p-3 rounded flex items-center justify-center gap-2 transition">
+                                <Icon name="bot" /> {chatOpen ? "Chat schließen" : "KI Mentor fragen"}
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* MAIN CONTENT */}
+                    <div className="flex-1 p-8 overflow-y-auto relative">
+                        
+                        {/* STEP 1: STYLE */}
+                        {step === 1 && (
+                            <div className="fade-in max-w-4xl mx-auto">
+                                <h2 className="text-4xl font-bold text-white mb-6">Wähle deinen Style</h2>
+                                <div className="grid md:grid-cols-3 gap-6">
+                                    {[
+                                        {id: 'aggro', name: 'AGGRESSIV', bpm: '140-160', desc: 'Harter Straßenrap, trocken, In-your-face.'},
+                                        {id: 'emo', name: 'EMOTIONAL', bpm: '90-110', desc: 'Viel Hall, Melodien, Deep.'},
+                                        {id: 'story', name: 'STORYTELLING', bpm: '85-95', desc: 'Fokus auf Stimme, wenig Effekte.'}
+                                    ].map(s => (
+                                        <div key={s.id} onClick={()=>{setStyle(s.id); setStep(2)}} className={`p-6 rounded-xl border cursor-pointer transition hover:scale-105 ${style===s.id ? 'bg-[#00f2ff] text-black border-[#00f2ff]' : 'bg-[#111] border-[#333] hover:border-[#00f2ff]'}`}>
+                                            <h3 className="text-2xl font-black mb-2">{s.name}</h3>
+                                            <div className="text-xs font-mono bg-black/20 inline-block px-2 py-1 rounded mb-4">BPM: {s.bpm}</div>
+                                            <p className="text-sm opacity-80">{s.desc}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* STEP 2: SETUP */}
+                        {step === 2 && (
+                            <div className="fade-in max-w-2xl mx-auto">
+                                <h2 className="text-3xl font-bold text-white mb-6">Session Setup</h2>
+                                
+                                <div className="bg-[#111] p-6 rounded-xl border border-[#333] mb-6">
+                                    <h3 className="text-[#00f2ff] font-bold mb-4 uppercase">Spuren (Recording)</h3>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        {Object.keys(tracks).map(k => (
+                                            <label key={k} className="flex items-center gap-3 cursor-pointer p-3 bg-black/30 rounded hover:bg-black/50">
+                                                <input type="checkbox" checked={tracks[k]} onChange={()=>setTracks({...tracks, [k]:!tracks[k]})} className="accent-[#00f2ff]" />
+                                                <span className="uppercase font-bold text-sm">{k}</span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="bg-[#111] p-6 rounded-xl border border-[#333] mb-8">
+                                    <h3 className="text-[#ff0055] font-bold mb-4 uppercase">Effekte (Sauce)</h3>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        {Object.keys(fx).map(k => (
+                                            <label key={k} className="flex items-center gap-3 cursor-pointer p-3 bg-black/30 rounded hover:bg-black/50">
+                                                <input type="checkbox" checked={fx[k]} onChange={()=>setFx({...fx, [k]:!fx[k]})} className="accent-[#ff0055]" />
+                                                <span className="uppercase font-bold text-sm">{k}</span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <button onClick={()=>setStep(3)} className="w-full bg-[#00f2ff] text-black font-black py-4 rounded-xl hover:bg-white transition">
+                                    AB INS STUDIO ->
+                                </button>
+                            </div>
+                        )}
+
+                        {/* STEP 3: MIXING SUITE */}
+                        {step === 3 && (
+                            <div className="fade-in max-w-5xl mx-auto">
+                                <header className="flex justify-between items-end mb-8 border-b border-[#333] pb-4">
+                                    <div>
+                                        <h2 className="text-4xl font-black text-white italic">MIXING CONSOLE</h2>
+                                        <p className="text-gray-500">Style: <span className="text-[#00f2ff] uppercase">{style}</span></p>
+                                    </div>
+                                    <button onClick={()=>setStep(2)} className="text-xs text-gray-500 hover:text-white">SETUP ÄNDERN</button>
+                                </header>
+
+                                <div className="grid lg:grid-cols-2 gap-8">
+                                    <div>
+                                        <h3 className="text-white font-bold mb-4 flex items-center gap-2"><Icon name="mic"/> MAIN VOCAL CHAIN</h3>
+                                        <VSTRack title="1. SUBTRAKTIVER EQ" type="eq" style={style} />
+                                        <VSTRack title="2. KOMPRESSOR" type="comp" style={style} />
+                                        <VSTRack title="3. SATURATION" type="sat" style={style} />
+                                    </div>
+                                    
+                                    <div>
+                                        <h3 className="text-white font-bold mb-4 flex items-center gap-2"><Icon name="sliders"/> FX & MASTER</h3>
+                                        {fx.autotune && <VSTRack title="PITCH CORRECTION" type="fx" style={style} />}
+                                        {fx.delay && <VSTRack title="SEND: DELAY" type="fx" style={style} />}
+                                        <VSTRack title="MASTER LIMITER" type="limit" style={style} />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                    </div>
+
+                    {/* AI CHAT OVERLAY */}
+                    {chatOpen && (
+                        <div className="absolute bottom-4 right-4 w-80 h-96 bg-[#1a1a1a] border border-[#333] rounded-lg shadow-2xl flex flex-col z-50">
+                            <div className="p-3 bg-[#000] border-b border-[#333] flex justify-between items-center">
+                                <span className="font-bold text-[#00f2ff] flex items-center gap-2"><Icon name="bot" size={16}/> PRODUCER MENTOR</span>
+                                <button onClick={()=>setChatOpen(false)} className="text-gray-500 hover:text-white">✕</button>
+                            </div>
+                            <div className="flex-1 overflow-y-auto p-3 space-y-3">
+                                {messages.map((m, i) => (
+                                    <div key={i} className={`p-2 rounded text-xs ${m.role==='ai' ? 'bg-[#222] text-gray-300' : 'bg-[#00f2ff]/20 text-[#00f2ff] ml-8'}`}
+                                         dangerouslySetInnerHTML={{__html: m.role==='ai' ? marked.parse(m.text) : m.text}}>
+                                    </div>
+                                ))}
+                            </div>
+                            <form onSubmit={handleChat} className="p-2 border-t border-[#333] flex gap-2">
+                                <input value={chatInput} onChange={e=>setChatInput(e.target.value)} className="flex-1 bg-[#000] border border-[#333] rounded px-2 text-white text-sm focus:border-[#00f2ff] outline-none" placeholder="Frage..." />
+                                <button type="submit" className="bg-[#00f2ff] text-black px-3 rounded font-bold text-xs">SEND</button>
+                            </form>
+                        </div>
+                    )}
+
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

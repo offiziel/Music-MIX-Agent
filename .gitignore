@@ -1,0 +1,33 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Uploads (temp files)
+server/uploads/*
+!server/uploads/.gitkeep
+
+# Logs
+logs/
+*.log
+
+# Build
+dist/
+build/

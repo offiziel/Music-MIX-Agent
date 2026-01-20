@@ -1,7 +1,6 @@
 import fs from 'fs';
 import { promisify } from 'util';
 import wavDecoder from 'wav-decoder';
-import Tempo from 'music-tempo';
 import ffmpeg from 'fluent-ffmpeg';
 import path from 'path';
 

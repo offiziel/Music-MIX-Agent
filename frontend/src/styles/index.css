@@ -1,0 +1,96 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-daw-bg text-slate-400 font-sans overflow-hidden;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #374151 #1F2937;
+  }
+
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: #1F2937;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: #374151;
+    border-radius: 4px;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background: #4B5563;
+  }
+}
+
+@layer components {
+  .daw-panel {
+    @apply bg-daw-panel border border-daw-border rounded-xl;
+  }
+
+  .vst-card {
+    @apply bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl transition-all duration-300;
+  }
+
+  .vst-card:hover {
+    @apply border-accent-cyan shadow-lg shadow-accent-cyan/10;
+  }
+
+  .active-tab {
+    @apply text-accent-cyan border-b-2 border-accent-cyan bg-accent-cyan/5;
+  }
+
+  .knob {
+    @apply w-10 h-10 rounded-full bg-slate-800 border-2 border-slate-700 relative cursor-pointer transition-transform hover:scale-110;
+  }
+
+  .knob::after {
+    content: '';
+    @apply absolute top-1 left-1/2 w-0.5 h-2.5 bg-accent-cyan -translate-x-1/2;
+  }
+
+  .meter-bg {
+    @apply bg-slate-950 border border-daw-border h-2.5 rounded-full overflow-hidden;
+  }
+
+  .meter-fill {
+    @apply h-full transition-all duration-100;
+    background: linear-gradient(90deg, #10B981, #F59E0B, #EF4444);
+  }
+
+  .btn-primary {
+    @apply bg-accent-cyan text-black px-6 py-3 rounded-lg font-bold text-sm uppercase tracking-wider transition-all hover:bg-cyan-400 hover:shadow-lg hover:shadow-accent-cyan/20;
+  }
+
+  .btn-secondary {
+    @apply bg-slate-800 text-white px-6 py-3 rounded-lg font-bold text-sm uppercase tracking-wider transition-all hover:bg-slate-700 border border-slate-700;
+  }
+}
+
+/* Custom animations */
+@keyframes wave {
+  0%, 100% {
+    transform: scaleY(0.5);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+.wave-bar {
+  animation: wave 1s ease-in-out infinite;
+}
+
+/* Spectrum analyzer canvas */
+canvas {
+  @apply w-full rounded-lg border border-daw-border;
+  background: #000;
+}

@@ -11,6 +11,27 @@ Mix Mentor AI is a full-stack application that combines advanced audio analysis 
 
 ---
 
+## 🌐 Quick Access
+
+**🚀 Try it Online (GitHub Pages):**
+```
+https://offiziel.github.io/Music-MIX-Agent/
+```
+
+**📖 Documentation:**
+- **[DEPLOYMENT.md](DEPLOYMENT.md)** - GitHub Pages Setup & Production Deployment
+- **[DOWNLOAD_PACKAGE.md](DOWNLOAD_PACKAGE.md)** - Complete Download & Installation Guide
+- **[QUICKSTART.md](QUICKSTART.md)** - 5-Minute Quick Start Tutorial
+- **[AI_PROVIDER_GUIDE.md](AI_PROVIDER_GUIDE.md)** - API Configuration Guide
+- **[PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md)** - Code Architecture
+
+**⚡ Quick Start:**
+1. Download ZIP or clone repository
+2. Open `index.html` in browser (Standalone mode - no installation!)
+3. For Full-Stack: See [DEPLOYMENT.md](DEPLOYMENT.md)
+
+---
+
 ## 🚀 Features
 
 ### 🎛️ **Advanced Audio Analysis**
